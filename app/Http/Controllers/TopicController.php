@@ -173,11 +173,30 @@ class TopicController extends Controller
     }
 
     /**
+     * Hiển thị trang xác nhận xóa.
+     */
+    public function delete(string $id)
+    {
+        // Lấy thông tin chuyên đề kèm nội dung để hiện thị cho người dùng xem trước khi xóa
+        $topic = Topic::with(['topicType', 'contents'])->findOrFail($id);
+        return view('topics.delete', compact('topic'));
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        $topic = Topic::findOrFail($id);
+        
+        // Tùy chọn: Xóa các nội dung con thuộc về chuyên đề này trước (nếu database chưa cài ON DELETE CASCADE)
+        $topic->contents()->delete(); 
+        
+        // Sau đó xóa chuyên đề
+        $topic->delete();
+
+        return redirect()->route('topics.index')
+                         ->with('success', 'Đã xóa chuyên đề thành công!');
     }
 
     /**
@@ -318,29 +337,29 @@ class TopicController extends Controller
         $table->addRow();
         $headerStyle = ['bold' => true];
         $table->addCell(600)->addText('STT', $headerStyle, ['alignment' => 'center']);
-        $table->addCell(3500)->addText('Nội dung', $headerStyle, ['alignment' => 'center']);
+        $table->addCell(9500)->addText('Nội dung', $headerStyle, ['alignment' => 'center']);
         $table->addCell(1000)->addText('Số tiết', $headerStyle, ['alignment' => 'center']);
-        $table->addCell(6000)->addText('Yêu cầu cần đạt', $headerStyle, ['alignment' => 'center']);
+        //$table->addCell(6000)->addText('Yêu cầu cần đạt', $headerStyle, ['alignment' => 'center']);
 
         if ($topic->contents && $topic->contents->count() > 0) {
             foreach ($topic->contents as $index => $content) {
                 $table->addRow();
                 $table->addCell(600)->addText($index + 1, null, ['alignment' => 'center']);
-                $table->addCell(3500)->addText($content->name);
+                $table->addCell(9500)->addText($content->name);
                 $table->addCell(1000)->addText($content->periods, null, ['alignment' => 'center']);
                 
-                $reqCell = $table->addCell(6000);
-                $reqLines = explode("\n", $content->objectives);
-                foreach ($reqLines as $line) {
-                    if (trim($line) !== '') {
-                        $reqCell->addText(trim($line));
-                    }
-                }
+                // $reqCell = $table->addCell(6000);
+                // $reqLines = explode("\n", $content->objectives);
+                // foreach ($reqLines as $line) {
+                //    if (trim($line) !== '') {
+                //        $reqCell->addText(trim($line));
+                //    }
+                // }
             }
             $table->addRow();
             $table->addCell(4100, ['gridSpan' => 2])->addText('Tổng cộng: ' . $topic->contents->count() . ' nội dung', ['bold' => true, 'italic' => true], ['alignment' => 'right']);
             $table->addCell(1000)->addText($topic->contents->sum('periods'), ['bold' => true], ['alignment' => 'center']);
-            $table->addCell(6000)->addText('');
+            //$table->addCell(6000)->addText('');
         } else {
             $table->addRow();
             $table->addCell(10000)->addText('Chuyên đề này chưa có nội dung nào được thêm vào.', null, ['alignment' => 'center']);

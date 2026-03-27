@@ -35,7 +35,8 @@
                     </a>
                 </li>
                 <li class="nav-item mb-1">
-                    <a class="nav-link text-secondary py-1" href="#">
+                    <a class="nav-link {{ request()->routeIs('contents.*') ? 'active text-primary fw-bold' : 'text-secondary' }} py-1"
+                        href="{{ route('contents.index') }}">
                         🔹 Nội dung chuyên đề
                     </a>
                 </li>

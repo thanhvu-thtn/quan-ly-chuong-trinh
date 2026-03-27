@@ -29,10 +29,9 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 5%;">STT</th>
-                <th style="width: 25%;">Nội dung</th>
-                <th style="width: 10%;">Số tiết</th>
-                <th style="width: 60%;">Yêu cầu cần đạt</th>
+                <th style="width: 15%;">STT</th>
+                <th style="width: 70%;">Nội dung</th>
+                <th style="width: 15%;">Số tiết</th>
             </tr>
         </thead>
         <tbody>
@@ -41,17 +40,15 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $content->name }}</td>
                     <td class="text-center">{{ $content->periods }}</td>
-                    <td>{!! nl2br(e($content->objectives)) !!}</td>
                 </tr>
             @empty
-                <tr><td colspan="4" class="text-center">Chưa có nội dung nào.</td></tr>
+                <tr><td colspan="3" class="text-center">Chưa có nội dung nào.</td></tr>
             @endforelse
             
             @if($topic->contents->count() > 0)
                 <tr>
                     <td colspan="2" class="text-right" style="font-weight: bold; font-style: italic;">Tổng cộng: {{ $topic->contents->count() }} nội dung</td>
                     <td class="text-center" style="font-weight: bold;">{{ $topic->contents->sum('periods') }}</td>
-                    <td></td>
                 </tr>
             @endif
         </tbody>

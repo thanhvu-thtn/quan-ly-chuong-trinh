@@ -22,45 +22,75 @@
                     <strong>Loại chuyên đề:</strong> {{ $topic->topicType->name }}
                 </div>
                 <div class="col-md-4 mb-2">
-                    <strong>Tổng số tiết:</strong> <span class="text-danger fw-bold">{{ $topic->total_periods }} tiết</span>
+                    <strong>Tổng số tiết quy định:</strong> <span class="text-danger fw-bold">{{ $topic->total_periods }} tiết</span>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="card shadow-sm border-secondary">
-        <div class="card-header bg-secondary text-white fw-bold">
-            📚 Danh sách nội dung
+        <div class="card-header bg-secondary text-white fw-bold d-flex justify-content-between align-items-center">
+            <span>📚 Danh sách nội dung</span>
+            <a href="{{ route('contents.create', ['topic_id' => $topic->id]) }}" class="btn btn-sm btn-success fw-bold shadow-sm">
+                ➕ Thêm Nội dung
+            </a>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover table-bordered mb-0">
+                <table class="table table-hover table-bordered mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th class="text-center" style="width: 5%;">STT</th>
-                            <th style="width: 30%;">Nội dung</th>
-                            <th class="text-center" style="width: 10%;">Số tiết</th>
-                            <th style="width: 55%;">Yêu cầu cần đạt</th>
+                            <th class="text-center" style="width: 10%;">STT</th>
+                            <th style="width: 55%;">Nội dung</th>
+                            <th class="text-center" style="width: 15%;">Số tiết</th>
+                            <th class="text-center" style="width: 20%;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $sumPeriods = $topic->contents ? $topic->contents->sum('periods') : 0;
+                            $totalPeriods = $topic->total_periods;
+                            $diff = $sumPeriods - $totalPeriods;
+                        @endphp
+
                         @if($topic->contents && $topic->contents->count() > 0)
                             @foreach($topic->contents as $index => $content)
                                 <tr>
-                                    <td class="text-center align-middle">{{ $index + 1 }}</td>
-                                    <td class="align-middle fw-bold">{{ $content->name }}</td>
-                                    <td class="text-center align-middle">{{ $content->periods }}</td>
-                                    <td class="align-middle">{!! nl2br(e($content->objectives)) !!}</td>
+                                    <td class="text-center fw-bold text-muted">{{ $index + 1 }}</td>
+                                    <td class="fw-bold">{{ $content->name }}</td>
+                                    <td class="text-center">{{ $content->periods }}</td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <a href="{{ route('contents.edit', $content->id) }}" class="btn btn-sm btn-warning text-dark" title="Sửa">✏️ Sửa</a>
+                                            <a href="{{ route('contents.delete', $content->id) }}" class="btn btn-sm btn-danger" title="Xóa">🗑️ Xóa</a>
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforeach
-                            <tr class="table-warning">
-                                <td colspan="2" class="text-end fw-bold fst-italic pe-3">Tổng cộng: {{ $topic->contents->count() }} nội dung</td>
-                                <td class="text-center fw-bold text-danger">{{ $topic->contents->sum('periods') }} tiết</td>
+                            
+                            <tr class="table-light">
+                                <td colspan="2" class="text-end fw-bold fst-italic pe-3">Tổng số tiết đã phân bố:</td>
+                                <td class="text-center fw-bold fs-5 text-primary">{{ $sumPeriods }}</td>
                                 <td></td>
                             </tr>
                         @else
                             <tr>
-                                <td colspan="4" class="text-center py-4 text-muted fst-italic">Chưa có nội dung nào.</td>
+                                <td colspan="4" class="text-center py-4 text-muted fst-italic">Chưa có nội dung nào trong chuyên đề này.</td>
+                            </tr>
+                        @endif
+
+                        @if($topic->contents && $topic->contents->count() > 0)
+                            <tr>
+                                <td colspan="4" class="text-center fw-bold py-3 
+                                    {{ $diff == 0 ? 'bg-success text-white' : ($diff < 0 ? 'bg-warning text-dark' : 'bg-danger text-white') }}">
+                                    @if($diff == 0)
+                                        ✅ Hoàn hảo! Đã phân bổ khớp {{ $sumPeriods }}/{{ $totalPeriods }} tiết.
+                                    @elseif($diff < 0)
+                                        ⚠️ Chú ý: Còn thiếu {{ abs($diff) }} tiết chưa được phân bổ (Hiện tại: {{ $sumPeriods }}/{{ $totalPeriods }}).
+                                    @else
+                                        ❌ Cảnh báo: Số tiết phân bổ đã vượt quá quy định {{ $diff }} tiết (Hiện tại: {{ $sumPeriods }}/{{ $totalPeriods }}).
+                                    @endif
+                                </td>
                             </tr>
                         @endif
                     </tbody>

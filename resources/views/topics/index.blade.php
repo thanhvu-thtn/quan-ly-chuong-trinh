@@ -92,7 +92,7 @@
                                         class="btn btn-sm btn-info fw-bold text-dark">👁️ Chi tiết</a>
                                     <a href="{{ route('topics.edit', $topic->id) }}"
                                         class="btn btn-sm btn-warning fw-bold">✏️ Sửa</a>
-                                    <a href="#" class="btn btn-sm btn-danger fw-bold">🗑️ Xóa</a>
+                                    <a href="{{ route('topics.delete', $topic->id) }}" class="btn btn-sm btn-danger fw-bold">🗑️ Xóa</a>
                                 </td>
                             </tr>
                         @empty

@@ -5,6 +5,17 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TopicTypeController;
 use App\Http\Controllers\TopicController; 
+use App\Http\Controllers\ContentController;
+use App\Http\Controllers\ObjectiveController;
+
+    // Quản lý Yêu cầu cần đạt trực tiếp trong trang Chi tiết Nội dung
+    Route::prefix('objectives')->group(function () {
+        Route::get('/create/{content_id}', [ObjectiveController::class, 'create'])->name('objectives.create');
+        Route::post('/create/{content_id}', [ObjectiveController::class, 'store'])->name('objectives.store');
+        Route::get('/edit/{id}', [ObjectiveController::class, 'edit'])->name('objectives.edit');
+        Route::put('/edit/{id}', [ObjectiveController::class, 'update'])->name('objectives.update');
+        Route::delete('/delete/{id}', [ObjectiveController::class, 'destroy'])->name('objectives.destroy');
+    });
 
 Route::get('/', function () {
     return view('home.home');
@@ -53,8 +64,23 @@ Route::prefix('topics')->group(function () {
     Route::get('/edit/{id}', [TopicController::class, 'edit'])->name('topics.edit');
     Route::put('/edit/{id}', [TopicController::class, 'update'])->name('topics.update');
     Route::get('/delete/{id}', [TopicController::class, 'delete'])->name('topics.delete');
+    // Hiển thị trang xác nhận xóa Chuyên đề
+    Route::get('topics/{id}/delete', [TopicController::class, 'delete'])->name('topics.delete');
     Route::delete('/delete/{id}', [TopicController::class, 'destroy'])->name('topics.destroy');
 });
+
+// Route về Nội dung
+Route::prefix('contents')->group(function () {
+    Route::get('/', [ContentController::class, 'index'])->name('contents.index');
+    // Các route khác như tạo, sửa, xóa có thể thêm vào đây
+    Route::get('/create', [ContentController::class, 'create'])->name('contents.create');
+    Route::post('/create', [ContentController::class, 'store'])->name('contents.store');
+    Route::get('/edit/{id}', [ContentController::class, 'edit'])->name('contents.edit');
+    Route::put('/edit/{id}', [ContentController::class, 'update'])->name('contents.update');
+    Route::get('/delete/{id}', [ContentController::class, 'delete'])->name('contents.delete');
+    Route::delete('/delete/{id}', [ContentController::class, 'destroy'])->name('contents.destroy');
+});
+
 
 // Nhóm yêu cầu đăng nhập
 Route::middleware('auth')->group(function () {
@@ -72,6 +98,15 @@ Route::middleware('auth')->group(function () {
     Route::get('topics/{id}/export-detail/pdf', [TopicController::class, 'exportDetailPdf'])->name('topics.exportDetail.pdf');
     Route::get('topics/{id}/export-detail/word', [TopicController::class, 'exportDetailWord'])->name('topics.exportDetail.word');
     Route::resource('topics', TopicController::class);
+
+    // Xuất file toàn bộ danh sách nội dung
+    Route::get('contents/export/pdf', [ContentController::class, 'exportPdf'])->name('contents.export.pdf');
+    Route::get('contents/export/word', [ContentController::class, 'exportWord'])->name('contents.export.word');
+    Route::get('contents-export-word', [App\Http\Controllers\ContentController::class, 'exportWord'])->name('contents.export-word-all');
+    Route::get('contents-export-pdf', [App\Http\Controllers\ContentController::class, 'exportPdf'])->name('contents.export-pdf-all');
+    //Route::get('contents/{content}/delete', [App\Http\Controllers\ContentController::class, 'delete'])->name('contents.delete');
+    // CRUD Nội dung
+    Route::resource('contents', ContentController::class);
 
 });
 
